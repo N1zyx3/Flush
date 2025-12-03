@@ -24,7 +24,7 @@ async def on_ready():
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
-        return # игнор без лога
+        return
     print(f"Command error: {error}")
 
 @bot.event
@@ -33,7 +33,6 @@ async def on_command_error(ctx, error):
         await ctx.send("Неизвестная команда. Все доступные команды: `.help`")
         return
 
-    # Остальные ошибки не трогаем — пусть обрабатываются отдельно
     raise error
 
 for filename in os.listdir("./cogs"):

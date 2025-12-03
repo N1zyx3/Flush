@@ -10,7 +10,6 @@ class Basic(commands.Cog):
     async def help_command(self, ctx):
         embed = discord.Embed(
             title="📘 Команды бота",
-            description="Вот что я умею:",
             color=discord.Color.blurple()
         )
         embed.add_field(name=".serverinfo", value="Показать информацию о сервере", inline=False)
