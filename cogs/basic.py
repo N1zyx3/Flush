@@ -52,6 +52,48 @@ class Basic(commands.Cog):
         embed.set_thumbnail(url=member.display_avatar.url)
         await ctx.send(embed=embed)
 
+    @commands.command(name="toggle")
+    async def toggle(self, ctx, type_: str, name: str, state: str):
+
+        if ctx.author.id not in self.bot.owner_ids:
+            await ctx.send("Только администраторы могут использовать эту команду.")
+            return
+
+        type_ = type_.lower()
+        state = state.lower()
+
+        if type_ == "command":
+            cmd = self.bot.get_command(name)
+            if not cmd:
+                await ctx.send(f"Команда не найдена.")
+                return
+            if cmd.name == "toggle":
+                await ctx.send("Эту команду нельзя отключить.")
+                return
+            cmd.enabled = state == "on"
+            await ctx.send(f"Команда {'включена' if state == 'on' else 'отключена'}.")
+
+        elif type_ == "cog":
+            if name.lower() == "basic":
+                await ctx.send("Basic нельзя выгружать.")
+                return
+            if state == "off":
+                try:
+                    self.bot.unload_extension(f"cogs.{name}")
+                    await ctx.send(f"`{name}` выгружен.")
+                except Exception as e:
+                    await ctx.send(f"Не удалось выгрузить `{name}`: {e}")
+            elif state == "on":
+                try:
+                    self.bot.load_extension(f"cogs.{name}")
+                    await ctx.send(f"`{name}` загружен.")
+                except Exception as e:
+                    await ctx.send(f"Не удалось загрузить `{name}`: {e}")
+            else:
+                await ctx.send("Доступные варианты: on/off")
+        else:
+            await ctx.send("Доступные варианты: `.toggle [command/cog] <имя> [on/off]`")
+
 
 def setup(bot):
     bot.add_cog(Basic(bot))
