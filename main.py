@@ -25,7 +25,7 @@ async def on_ready():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
         return
-    print(f"Command error: {error}")
+    print(f"Ошибка команды: {error}")
 
 @bot.event
 async def on_command_error(ctx, error):

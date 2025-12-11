@@ -8,14 +8,27 @@ class Basic(commands.Cog):
     # --- HELP ---
     @commands.command(name="help")
     async def help_command(self, ctx):
+
         embed = discord.Embed(
             title="📘 Команды бота",
             color=discord.Color.blurple()
         )
+
         embed.add_field(name=".serverinfo", value="Показать информацию о сервере", inline=False)
-        embed.add_field(name=".userinfo [пользователь]", value="Информация о пользователе", inline=False)
-        # embed.add_field(name=".kick [пользователь]", value="Кикнуть участника", inline=False)
-        # embed.add_field(name=".ban [пользователь]", value="Забанить участника", inline=False)
+        embed.add_field(name=".userinfo <пользователь>", value="Информация о пользователе", inline=False)
+
+        if ctx.channel.id == 1418214895081619607:
+            embed.add_field(name=".toggle [команда/ког] [on/off]", value="Включить/выключить команду или ког", inline=False)
+
+            lines = []
+            for cmd in self.bot.commands:
+                if getattr(cmd, "hidden", False):
+                    continue
+                status = "✅" if cmd.enabled else "❌"
+                lines.append(f"{status} `{cmd.name}` — {cmd.short_doc or 'без описания'}")
+
+            embed.add_field(name="Статус команд", value="\n".join(lines), inline=False)
+
         await ctx.send(embed=embed)
 
     # --- SERVER INFO ---
