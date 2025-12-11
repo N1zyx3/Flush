@@ -52,47 +52,51 @@ class Basic(commands.Cog):
         embed.set_thumbnail(url=member.display_avatar.url)
         await ctx.send(embed=embed)
 
+    # --- TOGGLE ---
     @commands.command(name="toggle")
-    async def toggle(self, ctx, type_: str, name: str, state: str):
+    async def toggle(self, ctx, name: str):
 
         if ctx.author.id not in self.bot.owner_ids:
             await ctx.send("Только администраторы могут использовать эту команду.")
             return
 
-        type_ = type_.lower()
-        state = state.lower()
+        cmd = self.bot.get_command(name)
 
-        if type_ == "command":
-            cmd = self.bot.get_command(name)
-            if not cmd:
-                await ctx.send(f"Команда не найдена.")
-                return
+        if cmd:
             if cmd.name == "toggle":
-                await ctx.send("Эту команду нельзя отключить.")
+                await ctx.send("Команду `toggle` нельзя отключить.")
                 return
-            cmd.enabled = state == "on"
-            await ctx.send(f"Команда {'включена' if state == 'on' else 'отключена'}.")
 
-        elif type_ == "cog":
+            cmd.enabled = not cmd.enabled
+
+            await ctx.send(
+                f"Команда `{cmd.name}` "
+                f"{'включена' if cmd.enabled else 'отключена'}."
+            )
+            return
+
+        loaded_cogs = list(self.bot.cogs.keys())
+
+        if name.capitalize() in loaded_cogs:
             if name.lower() == "basic":
-                await ctx.send("Basic нельзя выгружать.")
+                await ctx.send("Cog `basic` нельзя выгружать.")
                 return
-            if state == "off":
-                try:
-                    self.bot.unload_extension(f"cogs.{name}")
-                    await ctx.send(f"`{name}` выгружен.")
-                except Exception as e:
-                    await ctx.send(f"Не удалось выгрузить `{name}`: {e}")
-            elif state == "on":
-                try:
-                    self.bot.load_extension(f"cogs.{name}")
-                    await ctx.send(f"`{name}` загружен.")
-                except Exception as e:
-                    await ctx.send(f"Не удалось загрузить `{name}`: {e}")
-            else:
-                await ctx.send("Доступные варианты: on/off")
-        else:
-            await ctx.send("Доступные варианты: `.toggle [command/cog] <имя> [on/off]`")
+
+            try:
+                self.bot.unload_extension(f"cogs.{name}")
+                await ctx.send(f"Cog `{name}` выгружен.")
+            except Exception as e:
+                await ctx.send(f"Не удалось выгрузить `{name}`: {e}")
+            return
+
+        try:
+            self.bot.load_extension(f"cogs.{name}")
+            await ctx.send(f"Cog `{name}` загружен.")
+            return
+        except:
+            pass
+
+        await ctx.send("Не найдено ни команды, ни кога с таким именем.")
 
 
 def setup(bot):
