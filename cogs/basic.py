@@ -1,5 +1,6 @@
-from discord.ext import commands
 import discord
+from discord.ext import commands
+from main import toggles, save_toggles
 
 class Basic(commands.Cog):
     def __init__(self, bot):
@@ -57,24 +58,18 @@ class Basic(commands.Cog):
         embed.add_field(name=f"🆔 ID: {member.id}", value="", inline=False)
         embed.add_field(name=f"📅 Аккаунт создан: {member.created_at.strftime("%d.%m.%Y %H:%M:%S")}", value="", inline=False)
         embed.add_field(name=f"📥 Присоединился {member.joined_at.strftime("%d.%m.%Y %H:%M:%S")}", value="", inline=False)
-        embed.add_field(
-            name="🎭 Роли",
-            value=", ".join([role.mention for role in member.roles if role != ctx.guild.default_role]),
-            inline=False
-        )
+        embed.add_field(name="🎭 Роли", value=", ".join([role.mention for role in member.roles if role != ctx.guild.default_role]), inline=False)
         embed.set_thumbnail(url=member.display_avatar.url)
         await ctx.send(embed=embed)
 
     # --- TOGGLE ---
     @commands.command(name="toggle")
     async def toggle(self, ctx, name: str):
-
         if ctx.author.id not in self.bot.owner_ids:
             await ctx.send("Только администраторы могут использовать эту команду.")
             return
 
         cmd = self.bot.get_command(name)
-
         if cmd:
             if cmd.name == "toggle":
                 await ctx.send("Команду `toggle` нельзя отключить.")
@@ -92,7 +87,7 @@ class Basic(commands.Cog):
 
         if name.capitalize() in loaded_cogs:
             if name.lower() == "basic":
-                await ctx.send("Cog `basic` нельзя выгружать.")
+                await ctx.send("Basic нельзя выгружать.")
                 return
 
             try:
@@ -100,17 +95,16 @@ class Basic(commands.Cog):
                 await ctx.send(f"Cog `{name}` выгружен.")
             except Exception as e:
                 await ctx.send(f"Не удалось выгрузить `{name}`: {e}")
-            return
+                return
 
-        try:
-            self.bot.load_extension(f"cogs.{name}")
-            await ctx.send(f"Cog `{name}` загружен.")
-            return
-        except:
-            pass
+            try:
+                self.bot.load_extension(f"cogs.{name}")
+                await ctx.send(f"Cog `{name}` загружен.")
+                return
+            except:
+                pass
 
-        await ctx.send("Не найдено ни команды, ни кога с таким именем.")
-
+            await ctx.send("Не найдено ни команды, ни кога с таким именем.")
 
 def setup(bot):
     bot.add_cog(Basic(bot))
